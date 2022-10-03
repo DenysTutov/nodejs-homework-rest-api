@@ -11,7 +11,7 @@ const register = async (req, res) => {
     throw requestError(409, 'Email in use');
   }
 
-  const hashPassword = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
+  const hashPassword = await bcrypt.hash(password, 10);
 
   const result = await User.create({ ...req.body, password: hashPassword });
 

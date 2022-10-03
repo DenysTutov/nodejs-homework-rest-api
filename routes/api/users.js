@@ -1,5 +1,6 @@
 const express = require('express');
-const auth = require('../../controllers/auth');
+const ctrl = require('../../controllers/user');
+const { auth } = require('../../middlewares');
 
 const router = express.Router();
 
@@ -10,9 +11,13 @@ const { joiRegisterSchema, joiLoginSchema } = require('../../models/user');
 router.post(
   '/signup',
   validateBody(joiRegisterSchema),
-  ctrlWrapper(auth.register)
+  ctrlWrapper(ctrl.register)
 );
 
-router.post('/login', validateBody(joiLoginSchema), ctrlWrapper(auth.login));
+router.post('/login', validateBody(joiLoginSchema), ctrlWrapper(ctrl.login));
+
+router.get('/logout', auth, ctrlWrapper(ctrl.logout));
+
+router.get('/current', auth, ctrlWrapper(ctrl.getCurrent));
 
 module.exports = router;
