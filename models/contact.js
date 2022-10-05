@@ -1,5 +1,6 @@
 const { Schema, model } = require('mongoose');
 const Joi = require('joi');
+const { handleSaveErrors } = require('../helpers');
 
 const contactSchema = new Schema(
   {
@@ -21,18 +22,12 @@ const contactSchema = new Schema(
     },
     owner: {
       type: Schema.Types.ObjectId,
+      required: true,
       ref: 'user',
     },
   },
   { versionKey: false, timestamps: true }
 );
-
-const handleSaveErrors = (error, data, next) => {
-  const { name, code } = error;
-
-  error.status = name === 'MongoServerError' && code === 11000 ? 409 : 400;
-  next();
-};
 
 contactSchema.post('save', handleSaveErrors);
 
@@ -49,8 +44,8 @@ const updateFavoriteSchema = Joi.object({
   favorite: Joi.bool().required(),
 });
 
-const joiSchema = { addSchema, updateFavoriteSchema };
+const joiContactSchema = { addSchema, updateFavoriteSchema };
 
 const Contact = model('contact', contactSchema);
 
-module.exports = { Contact, joiSchema };
+module.exports = { Contact, joiContactSchema };
