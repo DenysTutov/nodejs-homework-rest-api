@@ -8,23 +8,27 @@ const { SECRET_KEY } = process.env;
 const login = async (req, res) => {
   const { email, password } = req.body;
 
-  const candidate = await User.findOne({ email });
+  const user = await User.findOne({ email });
 
-  if (!candidate) {
+  if (!user) {
     throw requestError(401, 'Email or password is wrong');
   }
 
-  const passCompare = await bcrypt.compare(password, candidate.password);
+  const passCompare = await bcrypt.compare(password, user.password);
 
   if (!passCompare) {
     throw requestError(401, 'Email or password is wrong');
   }
 
-  const payload = { id: candidate._id };
+  if (!user.verify) {
+    throw requestError(400, 'Email not verify');
+  }
+
+  const payload = { id: user._id };
 
   const token = jwt.sign(payload, SECRET_KEY, { expiresIn: '1h' });
 
-  await User.findByIdAndUpdate(candidate._id, { token });
+  await User.findByIdAndUpdate(user._id, { token });
 
   res.json({ status: 'success', code: 200, data: { token } });
 };
